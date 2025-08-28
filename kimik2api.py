@@ -27,7 +27,8 @@ client = OpenAI(
         api_key=api_key
 )
 
-req_path = Path("requests/hello.toml")
+PROJECT_DIR = Path(__file__).resolve().parent
+req_path = PROJECT_DIR/"requests"/"hello.toml"
 try:
     with req_path.open("rb") as f:
         toml_data = tomllib.load(f)
@@ -52,12 +53,25 @@ print(f"Ready to call model '{meta['model']}' with {len(messages)} message(s)")
 #      "max_tokens": meta.get("max_tokens",256),
 #}, indent=2, ensure_ascii=False))
 
-kwargs = {
-    "model": meta["model"],
-    "messages": messages,
-    "temperature": meta.get("temperature", 0.7),
-    "max_tokens": meta.get("max_tokens",256),
-}
+
+mode = input("Send (0) preset TOML or (1) custom prompt? ")
+if mode == "0":
+    kwargs = {
+        "model": meta["model"],
+        "messages": messages,
+        "temperature": meta.get("temperature", 0.7),
+        "max_tokens": meta.get("max_tokens",256),
+    }
+else:
+    print("Model/Temperature Presets Loaded")
+    message = input("Kimi K2 prompt: ")
+    max_tokens = int(input("Max Tokens: "))
+    kwargs = {
+        "model": meta["model"],
+        "messages": [{"role": "user", "content": message}],
+        "temperature": meta.get("temperature", 0.7),
+        "max_tokens": max_tokens,
+    }
 
 print("\n>>> calling OpenRouter ...")
 try:
