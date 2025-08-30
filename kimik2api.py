@@ -11,8 +11,10 @@ from dotenv import load_dotenv
 import tomllib
 import json
 from openai import OpenAI
+from art import text2art
 
-print(f"This is a test of the Kimi K2 API")
+
+print(f"You are attempting to interface with Kimi K2 through the OpenRouter system.")
 
 load_dotenv()
 api_key = os.getenv("API_KEY")
@@ -28,7 +30,9 @@ client = OpenAI(
 )
 
 PROJECT_DIR = Path(__file__).resolve().parent
-req_path = PROJECT_DIR/"requests"/"hello.toml"
+template="default.toml"
+
+req_path = PROJECT_DIR/"templates"/template
 try:
     with req_path.open("rb") as f:
         toml_data = tomllib.load(f)
@@ -42,6 +46,9 @@ messages = toml_data.get("messages", [])
 if not meta.get("model") or not isinstance(messages, list) or not messages:
     sys.exit("TOML must contain [meta].model and at least one [[messages]]")
 
+txt = "kimi  k2"
+font = "small"
+print(f"\n{text2art(txt,font=font)}\n")
 print(f"Ready to call model '{meta['model']}' with {len(messages)} message(s)")
 
 # Payload Preview
@@ -54,33 +61,38 @@ print(f"Ready to call model '{meta['model']}' with {len(messages)} message(s)")
 #}, indent=2, ensure_ascii=False))
 
 
-mode = input("Send (0) preset TOML or (1) custom prompt? ")
+mode = input("Send (0) TOML template or (1) custom prompt? ")
 if mode == "0":
-    kwargs = {
+    payload = {
         "model": meta["model"],
         "messages": messages,
         "temperature": meta.get("temperature", 0.7),
         "max_tokens": meta.get("max_tokens",256),
     }
-else:
-    print("Model/Temperature Presets Loaded")
+elif mode == "1":
+    print(f"Model/Temperature Presets Loaded from {req_path} ")
     message = input("Kimi K2 prompt: ")
     max_tokens = int(input("Max Tokens: "))
-    kwargs = {
+    payload = {
         "model": meta["model"],
         "messages": [{"role": "user", "content": message}],
         "temperature": meta.get("temperature", 0.7),
         "max_tokens": max_tokens,
     }
+else:
+    sys.exit()
 
-print("\n>>> calling OpenRouter ...")
+print("\n>>> calling OpenRouter ...\n")
 try:
-    response = client.chat.completions.create(**kwargs)
+    response = client.chat.completions.create(**payload)
     answer = response.choices[0].message.content.strip()
 except Exception as e:
     sys.exit(f"API error: {e}")
 
-print("\n---Kimi K2 says ---")
+now = datetime.now()
+timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
+print(timestamp)
+print("--- Kimi K2 says ---\n")
 print(answer)
 
 

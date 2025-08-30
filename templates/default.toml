@@ -1,4 +1,4 @@
-# requests/hello.toml
+# Default TOML template for LLM API Wrapper
 [meta]
 model = "moonshotai/kimi-k2:free"
 purpose = "smoke-test"
