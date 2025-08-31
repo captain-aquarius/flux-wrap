@@ -82,6 +82,8 @@ while True:
             "temperature": meta.get("temperature", 0.7),
             "max_tokens": max_tokens,
         }
+    else:
+        break
 
     print("\n>>> calling OpenRouter ...\n")
     try:
