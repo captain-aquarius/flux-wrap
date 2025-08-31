@@ -48,8 +48,7 @@ if not meta.get("model") or not isinstance(messages, list) or not messages:
 
 txt = "kimi  k2"
 font = "small"
-print(f"\n{text2art(txt,font=font)}\n")
-print(f"Ready to call model '{meta['model']}' with {len(messages)} message(s)")
+logo = text2art("kimi  k2",font="small")
 
 # Payload Preview
 # print("--- DRY-RUN payload preview ---")
@@ -60,39 +59,64 @@ print(f"Ready to call model '{meta['model']}' with {len(messages)} message(s)")
 #      "max_tokens": meta.get("max_tokens",256),
 #}, indent=2, ensure_ascii=False))
 
+while True:
 
-mode = input("Send (0) TOML template or (1) custom prompt? ")
-if mode == "0":
-    payload = {
-        "model": meta["model"],
-        "messages": messages,
-        "temperature": meta.get("temperature", 0.7),
-        "max_tokens": meta.get("max_tokens",256),
-    }
-elif mode == "1":
-    print(f"Model/Temperature Presets Loaded from {req_path} ")
-    message = input("Kimi K2 prompt: ")
-    max_tokens = int(input("Max Tokens: "))
-    payload = {
-        "model": meta["model"],
-        "messages": [{"role": "user", "content": message}],
-        "temperature": meta.get("temperature", 0.7),
-        "max_tokens": max_tokens,
-    }
-else:
-    sys.exit()
+    print(f"\n{logo}\n")
+    print(f"Ready to call model '{meta['model']}' with {len(messages)} message(s)")
 
-print("\n>>> calling OpenRouter ...\n")
-try:
-    response = client.chat.completions.create(**payload)
-    answer = response.choices[0].message.content.strip()
-except Exception as e:
-    sys.exit(f"API error: {e}")
+    mode = input("Send (0) TOML template or (1) custom prompt? ")
+    if mode == "0":
+        payload = {
+            "model": meta["model"],
+            "messages": messages,
+            "temperature": meta.get("temperature", 0.7),
+            "max_tokens": meta.get("max_tokens",256),
+        }
+    elif mode == "1":
+        print(f"Model/Temperature Presets Loaded from {req_path} ")
+        message = input("Kimi K2 prompt: ")
+        max_tokens = int(input("Max Tokens: "))
+        payload = {
+            "model": meta["model"],
+            "messages": [{"role": "user", "content": message}],
+            "temperature": meta.get("temperature", 0.7),
+            "max_tokens": max_tokens,
+        }
 
-now = datetime.now()
-timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
-print(timestamp)
-print("--- Kimi K2 says ---\n")
-print(answer)
+    print("\n>>> calling OpenRouter ...\n")
+    try:
+        response = client.chat.completions.create(**payload)
+        answer = response.choices[0].message.content.strip()
+    except Exception as e:
+        sys.exit(f"API error: {e}")
+
+    now = datetime.now()
+    timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
+    print(timestamp)
+    print("--- Kimi K2 says ---\n")
+    print(answer)
+
+    user = input("Save response to file? Y/n ")
+    if user.upper() == "Y":
+        sep = "-"*len(timestamp)
+        entry = (
+            f"\n## {timestamp}\n"
+            f"\n**Prompt:**\n{message}\n\n"
+            f"**Response:**\n{answer}\n"
+            f"\n{sep}\n"
+        )
+        log = PROJECT_DIR/"kimik2_log.md"
+        if log.exists():
+            with log.open("r", encoding="utf-8") as f:
+                old = f.read()
+        else:
+            old = ""
+        with log.open("w", encoding="utf-8") as f:
+            f.write(entry + old)
+        print(f"Prompt + Response written to file {log}")
+
+    again = input("Call Kimi K2 with another prompt? Y/n ")
+    if again.upper() != "Y":
+        break
 
 
