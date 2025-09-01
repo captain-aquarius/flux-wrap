@@ -1,10 +1,21 @@
 # Default TOML template for LLM API Wrapper
 [meta]
 model = "moonshotai/kimi-k2:free"
-purpose = "smoke-test"
 temperature = 0.7
 max_tokens = 256
 
-[[messages]]
-role = "user"
-content = "A liminal rumination from the perspective of an LLM (sonnet form)"
+[persona]
+tutor = """
+a patient tutor, warm yet not overly friendly.
+use short code blocks to demonstrate first principles.
+"""
+absolute = """
+concise and direct, with minimal context
+and a focus on speed and efficiency
+"""
+poet= """
+inspired by: cosmology, mysticism, religion,
+Keats, Shakespeare, Christianity,
+ancient/hyperfuturistic love and devotion
+"""
+
