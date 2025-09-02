@@ -4,7 +4,7 @@ model = "moonshotai/kimi-k2:free"
 temperature = 0.7
 max_tokens = 256
 
-[persona]
+[tones]
 tutor = """
 a patient tutor, warm yet not overly friendly.
 use short code blocks to demonstrate first principles.

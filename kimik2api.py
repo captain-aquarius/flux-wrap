@@ -14,6 +14,12 @@ from openai import OpenAI
 from art import text2art
 
 
+# ASCII art
+
+txt = "kimi  k2"
+font = "small"
+logo = text2art("kimi  k2",font="small")
+
 print(f"You are attempting to interface with Kimi K2 through the OpenRouter system.")
 
 load_dotenv()
@@ -28,13 +34,14 @@ client = OpenAI(
         base_url=base_url,
         api_key=api_key
 )
+
 # Locate yourself in the file system
 
 PROJECT_DIR = Path(__file__).resolve().parent
 
 # load the TOML
 
-toml="default.toml"
+toml = "default.toml"
 
 toml_path = PROJECT_DIR/"templates"/toml
 
@@ -50,78 +57,120 @@ meta = toml_data.get("meta", {})
 if not meta.get("model"):
     sys.exit("TOML must contain [meta].model")
 
-# ASCII art
+tone_dict = toml_data.get("tones", {})
 
-txt = "kimi  k2"
-font = "small"
-logo = text2art("kimi  k2",font="small")
+model = meta["model"]
+temp = meta["temperature"]
+max_tokens = meta["max_tokens"]
+tone = "default"
+tone_str = ""
+prompt = ""
+messages = []
+params = [model, messages, temp, max_tokens]
+
+def buildpayload(param_list)->dict:
+    model = param_list[0]
+    messages = param_list[1]
+    temp = param_list[2]
+    tokens = int(param_list[3])
+    payload = {
+        "model": model,
+        "messages": messages,
+        "temperature": temp,
+        "max_tokens": tokens,
+    }
+    return payload
 
 # The Ritual
 
 while True:
 
     print(f"\n{logo}\n")
-    print(f"Ready to call model '{meta['model']}'\nModel/Temperature presets loaded from '{toml}'")
+    print(f"Ready to call model '{model}'\nModel/Temperature presets loaded from '{toml}'")
     mode = input("Enter Session Mode (0) or send single prompt (1)? ")
+
     if mode == "0":
-        tone_dict = toml_data.get("persona", {})
+        # tone selection
         tn_list = list(tone_dict.keys())
         tone = input(f"Choose persona: {tn_list} ")
         if tone not in tn_list:
             break
-        prompt = input(f"Kimi K2 ({tone}) prompt: ")
-        if not prompt:
-            break
-        max_tokens = int(input("Max Tokens: "))
+        tone_str = tone_dict[tone].replace("\n", " ").strip()
+        messages.append({"role": "system", "content": tone_str})
 
-        # Construct The Payload
-        
-        def cleantone(tone):
-            string = tone_dict[tone].replace("\n", " ").strip()
-            return string
+        while True:
+            # prompt declaration
+            prompt = input(f"Kimi K2 ({tone}) prompt: ")
+            if not prompt:
+                break
+            messages.append({"role":"user", "content": prompt})
+            # max token allocation
+            max_tokens = int(input("Max Tokens: "))
 
-        payload = {
-            "model": meta["model"],
-            "messages": [
-                {"role": "system", "content": cleantone(tone)},
-                {"role":"user", "content": prompt}
-            ],
-            "temperature": meta.get("temperature", 0.7),
-            "max_tokens": max_tokens,
-        }
+            # payload construction
+
+            params = [model, messages, temp, max_tokens]
+            payload = buildpayload(params)
+
+            print(f"Here is your payload preview:\n\n{payload}\n\n")
+            user = input("Confirm prompt send? Y/n ")
+            if user.upper() != "Y":
+                break
+
+            print("\n>>> calling OpenRouter ...\n")
+            try:
+                response = client.chat.completions.create(**payload)
+                answer = response.choices[0].message.content.strip()
+            except Exception as e:
+                sys.exit(f"API error: {e}")
+
+            now = datetime.now()
+            timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
+
+            print(timestamp)
+            print("--- Kimi K2 says ---\n")
+            print(f"{answer}\n")
+            messages.append({"role":"assistant","content": answer})
+            user = input("Continue? Y/n " )
+            if user.upper() != "Y":
+                break
+
+
     elif mode == "1":
-        tone = "default"
+        messages = []
         prompt = input("Kimi K2 prompt: ")
+        messages.append({"role":"user","content":prompt})
         max_tokens = int(input("Max Tokens: "))
-        payload = {
-            "model": meta["model"],
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": meta.get("temperature", 0.7),
-            "max_tokens": max_tokens,
-        }
+
+        params = [model, messages, temp, max_tokens]
+        payload = buildpayload(params)
+        
+        print(f"Here is your payload preview:\n\n{payload}\n\n")
+        user = input("Confirm prompt send? Y/n ")
+        if user.upper() != "Y":
+            break
+
+        print("\n>>> calling OpenRouter ...\n")
+        try:
+            response = client.chat.completions.create(**payload)
+            answer = response.choices[0].message.content.strip()
+        except Exception as e:
+            sys.exit(f"API error: {e}")
+
+        now = datetime.now()
+        timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
+        print(timestamp)
+        print("--- Kimi K2 says ---\n")
+        print(f"{answer}\n")
+
     else:
         break
 
-    print(f"Here is your payload preview:\n\n{payload}\n\n")
-    user = input("Confirm prompt send? Y/n ")
-    if user.upper() != "Y":
-        break
-
-    print("\n>>> calling OpenRouter ...\n")
-    try:
-        response = client.chat.completions.create(**payload)
-        answer = response.choices[0].message.content.strip()
-    except Exception as e:
-        sys.exit(f"API error: {e}")
-
-    now = datetime.now()
-    timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
-    print(timestamp)
-    print("--- Kimi K2 says ---\n")
-    print(f"{answer}\n")
-
+    # Save to File
     user = input("Save response to file? Y/n ")
-    if user.upper() == "Y":
+    if mode == "0":
+        print("Save to file currently unavailable for Session Mode.")
+    elif user.upper() == "Y":
         sep = "-"*len(timestamp)
         entry = (
             f"\n## {timestamp}\n"
