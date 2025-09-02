@@ -53,12 +53,15 @@ except FileNotFoundError:
 except tomllib.TOMLDecodeError as e:
     sys.exit(f"TOML error: {e}")
 
+# Retrieve metadata
 meta = toml_data.get("meta", {})
 if not meta.get("model"):
     sys.exit("TOML must contain [meta].model")
 
+# Retreieve tones
 tone_dict = toml_data.get("tones", {})
 
+# Initialize parameters
 model = meta["model"]
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
@@ -81,13 +84,13 @@ def buildpayload(param_list)->dict:
     }
     return payload
 
-# The Ritual
-
+# CORE LOOP
 while True:
 
     print(f"\n{logo}\n")
     print(f"Ready to call model '{model}'\nModel/Temperature presets loaded from '{toml}'")
     mode = input("Enter Session Mode (0) or send single prompt (1)? ")
+    messages = []
 
     if mode == "0":
         # tone selection
@@ -96,27 +99,32 @@ while True:
         if tone not in tn_list:
             break
         tone_str = tone_dict[tone].replace("\n", " ").strip()
-        messages.append({"role": "system", "content": tone_str})
+        messages.append({"role": "system", "content": tone_str})        # Add system dict to messages list
 
+        # SESSION LOOP
         while True:
+
             # prompt declaration
             prompt = input(f"Kimi K2 ({tone}) prompt: ")
             if not prompt:
                 break
-            messages.append({"role":"user", "content": prompt})
+            messages.append({"role":"user", "content": prompt})         # Add user prompt to messages list
+
             # max token allocation
             max_tokens = int(input("Max Tokens: "))
 
             # payload construction
 
-            params = [model, messages, temp, max_tokens]
+            params = [model, messages, temp, max_tokens]                # Re-build parameter list
             payload = buildpayload(params)
 
+            # (Payload Preview (non-essential):
             print(f"Here is your payload preview:\n\n{payload}\n\n")
             user = input("Confirm prompt send? Y/n ")
             if user.upper() != "Y":
                 break
 
+            # Payload Delivery
             print("\n>>> calling OpenRouter ...\n")
             try:
                 response = client.chat.completions.create(**payload)
@@ -127,16 +135,21 @@ while True:
             now = datetime.now()
             timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
 
+            # Print to CLI
             print(timestamp)
             print("--- Kimi K2 says ---\n")
             print(f"{answer}\n")
-            messages.append({"role":"assistant","content": answer})
+
+            messages.append({"role":"assistant","content": answer})         # Add response to messages list
+
+            # Consent to re-loop/continue SESSION LOOP
             user = input("Continue? Y/n " )
             if user.upper() != "Y":
                 break
 
 
     elif mode == "1":
+        tone = "default"
         messages = []
         prompt = input("Kimi K2 prompt: ")
         messages.append({"role":"user","content":prompt})
@@ -157,48 +170,69 @@ while True:
         except Exception as e:
             sys.exit(f"API error: {e}")
 
+
         now = datetime.now()
         timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
+
         print(timestamp)
         print("--- Kimi K2 says ---\n")
         print(f"{answer}\n")
-
+        
+        messages.append({"role":"assistant","content": answer})         # Add response to messages list
+    
     else:
         break
 
     # Save to File
     user = input("Save response to file? Y/n ")
-    if mode == "0":
-        print("Save to file currently unavailable for Session Mode.")
-    elif user.upper() == "Y":
-        sep = "-"*len(timestamp)
-        entry = (
-            f"\n## {timestamp}\n"
-            f"\n**Prompt ({tone}):**\n{prompt}\n\n"
-            f"**Response:**\n{answer}\n"
-            f"\n{sep}\n"
-        )
-        log_nm = "kimik2_log.md"
-        log = PROJECT_DIR/log_nm
+    if user.upper() != "Y":
+        continue
+    else:
+        if mode == "0":
+            print("Session will be saved in today's session file.")
+        else:
+            print("Session will be saved to master log.")
+
+        entries = []
+        for dic in messages:
+            if dic["role"] == "system":
+                pass
+            elif dic["role"] == "user":
+                prm = dic["content"]
+                entry = (
+                    f"\n*Prompt ({tone}):*\n{prm}\n\n"
+                )
+                entries.append(entry)
+            elif dic["role"] == "assistant":
+                ans = dic["content"]
+                entry = (
+                        f"\n*Response:*\n{ans}\n"
+                        "\n---\n"
+                )
+                entries.append(entry)
+        session = ''.join(entries)
+
+        if mode == "0":
+            date = datetime.now().strftime("%m_%d_%Y")
+            log_file = f"{date}_{tone}.md"
+            log = PROJECT_DIR/"sessions"/log_file
+        elif mode == "1":
+            log_file = "kimik2_log.md"
+            log = PROJECT_DIR/log_file
+        else:
+            break
+
         if log.exists():
             with log.open("r", encoding="utf-8") as f:
                 old = f.read()
         else:
             old = ""
-        with log.open("w", encoding="utf-8") as f:
-            f.write(entry + old)
-        print(f"Prompt + Response written to file '{log_nm}'")
 
+        with log.open("w", encoding="utf-8") as f:
+            f.write(f"\n## {timestamp}\n" + session + old)
+        print(f"Session written to file '{log_file}'")
+    
+    # Consent to re-loop/continue CORE LOOP
     again = input("Call Kimi K2 with another prompt? Y/n ")
     if again.upper() != "Y":
         break
-
-
-# Payload Preview
-# print("--- DRY-RUN payload preview ---")
-# print(json.dumps({
-#      "model": meta["model"],
-#     "messages": messages,
-#      "temperature": meta.get("temperature", 0.7),
-#      "max_tokens": meta.get("max_tokens",256),
-#}, indent=2, ensure_ascii=False))
