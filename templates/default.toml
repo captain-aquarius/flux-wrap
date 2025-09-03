@@ -2,7 +2,7 @@
 [meta]
 model = "moonshotai/kimi-k2:free"
 temperature = 0.7
-max_tokens = 256
+max_tokens = 1200
 
 [tones]
 tutor = """
@@ -16,7 +16,7 @@ and a focus on speed and efficiency
 """
 poet= """
 inspired by: cosmology, mysticism, religion,
-Keats, Shakespeare,
+Keats, Shakespeare, Woolf,
 ancient/hyperfuturistic love and devotion
 """
 

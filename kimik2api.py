@@ -55,11 +55,8 @@ model = meta["model"]
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
 tone = "default"
-tone_str = ""
-prompt = ""
-messages = []
-#params = [model, messages, temp, max_tokens]
 
+#params = [model, messages, temp, max_tokens]
 def buildpayload(param_list)->dict:
     model = param_list[0]
     messages = param_list[1]
@@ -75,21 +72,21 @@ def buildpayload(param_list)->dict:
 
 # ASCII art
 txt = "kimi  k2"
-font = "small"
-logo = text2art("kimi  k2",font="small")
+logo = text2art(txt,font="small")
 
 # CORE LOOP
 while True:
 
     print(f"\n{logo}\n")
     print(f"Ready to call model '{model}'\nModel/Temperature presets loaded from '{toml}'")
-    mode = input("Enter Session Mode (0) or send single prompt (1)? ")
+    mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
     messages = []
 
     if mode == "0":
         # tone selection
         tn_list = list(tone_dict.keys())
-        tone = input(f"Choose persona: {tn_list} ")
+        menu = "\n".join(tn_list)
+        tone = input(f"\nChoose Persona:\n---\n{menu}\n---\n~ ")
         if tone not in tn_list:
             break
         tone_str = tone_dict[tone].replace("\n", " ").strip()
@@ -99,13 +96,14 @@ while True:
         while True:
 
             # prompt declaration
-            prompt = input(f"Kimi K2 ({tone}) prompt: ")
+            prompt = input(f"Kimi K2 ({tone}) prompt:\n~ ")
             if not prompt:
                 break
             messages.append({"role":"user", "content": prompt})             # Add user prompt to messages list
 
             # max token allocation
-            max_tokens = int(input("Max Tokens: "))
+            budget = input("Max Tokens:\n~ ")
+            max_tokens = int(budget) if budget else max_tokens
 
             # payload construction
             params = [model, messages, temp, max_tokens]                    # Build parameter list
@@ -113,7 +111,7 @@ while True:
 
             # Payload Preview (non-essential):
             print(f"Here is your payload preview:\n\n{payload}\n\n")
-            user = input("Confirm prompt send? Y/n ")
+            user = input("Confirm prompt send? Y/n\n~ ")
             if user.upper() != "Y":
                 break
 
@@ -135,7 +133,7 @@ while True:
             messages.append({"role":"assistant","content": answer})         # Add response to messages list
 
             # Consent to re-loop/continue SESSION LOOP
-            user = input("Continue? Y/n " )
+            user = input("Continue? Y/n\n~ " )
             if user.upper() != "Y":
                 break
 
@@ -143,15 +141,16 @@ while True:
     elif mode == "1":
         tone = "default"
         messages = []
-        prompt = input("Kimi K2 prompt: ")
+        prompt = input("Kimi K2 prompt:\n~ ")
         messages.append({"role":"user","content":prompt})                   # Add user prompt to messages list
-        max_tokens = int(input("Max Tokens: "))
+        budget = input("Max Tokens:\n~ ")
+        max_tokens = int(budget) if budget else max_tokens
 
         params = [model, messages, temp, max_tokens]
         payload = buildpayload(params)
 
         print(f"Here is your payload preview:\n\n{payload}\n\n")
-        user = input("Confirm prompt send? Y/n ")
+        user = input("Confirm prompt send? Y/n\n~ ")
         if user.upper() != "Y":
             break
 
@@ -174,7 +173,7 @@ while True:
         break
 
     # Save to File
-    user = input("Save response to file? Y/n ")
+    user = input("Save response to file? Y/n\n~ ")
     if user.upper() != "Y":
         continue
     else:
@@ -223,6 +222,6 @@ while True:
         print(f"Session written to file '{log_file}'")
     
     # Consent to re-loop/continue CORE LOOP
-    again = input("Call Kimi K2 with another prompt? Y/n ")
+    again = input("Call Kimi K2 with another prompt? Y/n\n~ ")
     if again.upper() != "Y":
         break
