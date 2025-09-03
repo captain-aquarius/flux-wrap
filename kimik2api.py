@@ -14,21 +14,16 @@ from openai import OpenAI
 from art import text2art
 
 
-# ASCII art
-
-txt = "kimi  k2"
-font = "small"
-logo = text2art("kimi  k2",font="small")
-
 print(f"You are attempting to interface with Kimi K2 through the OpenRouter system.")
 
+# Get API Key from .env
 load_dotenv()
 api_key = os.getenv("API_KEY")
 if not api_key:
     sys.exit("No API_KEY located.")
-
 print(f"API_KEY of length {len(api_key)} characters obtained.")
 
+# Initialize OpenRouter
 base_url = "https://openrouter.ai/api/v1"
 client = OpenAI(
         base_url=base_url,
@@ -36,29 +31,23 @@ client = OpenAI(
 )
 
 # Locate yourself in the file system
-
 PROJECT_DIR = Path(__file__).resolve().parent
 
 # load the TOML
-
 toml = "default.toml"
-
 toml_path = PROJECT_DIR/"templates"/toml
-
 try:
     with toml_path.open("rb") as f:
-        toml_data = tomllib.load(f)         # TOML becomes Python dictionary toml_data
+        toml_data = tomllib.load(f)                                         # TOML becomes Python dictionary toml_data
 except FileNotFoundError:
     sys.exit(f"{toml_path} not found")
 except tomllib.TOMLDecodeError as e:
     sys.exit(f"TOML error: {e}")
 
-# Retrieve metadata
+# Retrieve metadata + tones
 meta = toml_data.get("meta", {})
 if not meta.get("model"):
     sys.exit("TOML must contain [meta].model")
-
-# Retreieve tones
 tone_dict = toml_data.get("tones", {})
 
 # Initialize parameters
@@ -69,7 +58,7 @@ tone = "default"
 tone_str = ""
 prompt = ""
 messages = []
-params = [model, messages, temp, max_tokens]
+#params = [model, messages, temp, max_tokens]
 
 def buildpayload(param_list)->dict:
     model = param_list[0]
@@ -83,6 +72,11 @@ def buildpayload(param_list)->dict:
         "max_tokens": tokens,
     }
     return payload
+
+# ASCII art
+txt = "kimi  k2"
+font = "small"
+logo = text2art("kimi  k2",font="small")
 
 # CORE LOOP
 while True:
@@ -99,7 +93,7 @@ while True:
         if tone not in tn_list:
             break
         tone_str = tone_dict[tone].replace("\n", " ").strip()
-        messages.append({"role": "system", "content": tone_str})        # Add system dict to messages list
+        messages.append({"role": "system", "content": tone_str})            # Add system dict to messages list
 
         # SESSION LOOP
         while True:
@@ -108,17 +102,16 @@ while True:
             prompt = input(f"Kimi K2 ({tone}) prompt: ")
             if not prompt:
                 break
-            messages.append({"role":"user", "content": prompt})         # Add user prompt to messages list
+            messages.append({"role":"user", "content": prompt})             # Add user prompt to messages list
 
             # max token allocation
             max_tokens = int(input("Max Tokens: "))
 
             # payload construction
-
-            params = [model, messages, temp, max_tokens]                # Re-build parameter list
+            params = [model, messages, temp, max_tokens]                    # Build parameter list
             payload = buildpayload(params)
 
-            # (Payload Preview (non-essential):
+            # Payload Preview (non-essential):
             print(f"Here is your payload preview:\n\n{payload}\n\n")
             user = input("Confirm prompt send? Y/n ")
             if user.upper() != "Y":
@@ -132,8 +125,7 @@ while True:
             except Exception as e:
                 sys.exit(f"API error: {e}")
 
-            now = datetime.now()
-            timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
+            timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")
 
             # Print to CLI
             print(timestamp)
@@ -147,17 +139,17 @@ while True:
             if user.upper() != "Y":
                 break
 
-
+    # SINGLE-PROMPT LOOP
     elif mode == "1":
         tone = "default"
         messages = []
         prompt = input("Kimi K2 prompt: ")
-        messages.append({"role":"user","content":prompt})
+        messages.append({"role":"user","content":prompt})                   # Add user prompt to messages list
         max_tokens = int(input("Max Tokens: "))
 
         params = [model, messages, temp, max_tokens]
         payload = buildpayload(params)
-        
+
         print(f"Here is your payload preview:\n\n{payload}\n\n")
         user = input("Confirm prompt send? Y/n ")
         if user.upper() != "Y":
@@ -170,16 +162,14 @@ while True:
         except Exception as e:
             sys.exit(f"API error: {e}")
 
-
-        now = datetime.now()
-        timestamp = now.strftime("%m-%d-%Y @ %I:%M%p")
+        timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")
 
         print(timestamp)
         print("--- Kimi K2 says ---\n")
         print(f"{answer}\n")
-        
-        messages.append({"role":"assistant","content": answer})         # Add response to messages list
-    
+
+        messages.append({"role":"assistant","content": answer})             # Add response to messages list
+
     else:
         break
 

@@ -8,6 +8,7 @@ max_tokens = 256
 tutor = """
 a patient tutor, warm yet not overly friendly.
 use short code blocks to demonstrate first principles.
+assume Python, Linux CLI
 """
 absolute = """
 concise and direct, with minimal context
@@ -15,7 +16,7 @@ and a focus on speed and efficiency
 """
 poet= """
 inspired by: cosmology, mysticism, religion,
-Keats, Shakespeare, Christianity,
+Keats, Shakespeare,
 ancient/hyperfuturistic love and devotion
 """
 
