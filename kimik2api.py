@@ -14,7 +14,7 @@ from openai import OpenAI
 from art import text2art
 
 
-print(f"You are attempting to interface with Kimi K2 through the OpenRouter system.")
+print(f"You are attempting to interface with Kimi K2 through the OpenRouter system.\nAttempting to get API KEY >>>")
 
 # Get API Key from .env
 load_dotenv()
@@ -50,14 +50,14 @@ if not meta.get("model"):
     sys.exit("TOML must contain [meta].model")
 tone_dict = toml_data.get("tones", {})
 
-# Initialize parameters
+# Initialize required parameters for buildpayload(params:list)->dict:
 model = meta["model"]
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
 tone = "default"
 
-#params = [model, messages, temp, max_tokens]
-def buildpayload(param_list)->dict:
+def buildpayload(param_list:list)->dict:
+    """PAYLOAD ASSEMBLY"""
     model = param_list[0]
     messages = param_list[1]
     temp = param_list[2]
@@ -70,6 +70,16 @@ def buildpayload(param_list)->dict:
     }
     return payload
 
+def apidrop(payload:dict)->str:
+    """API CALL"""
+    try:
+        response = client.chat.completions.create(**payload)
+        answer = response.choices[0].message.content.strip()
+        return answer
+    except Exception as e:
+        sys.exit(f"API error: {e}")
+
+
 # ASCII art
 txt = "kimi  k2"
 logo = text2art(txt,font="small")
@@ -78,11 +88,12 @@ logo = text2art(txt,font="small")
 while True:
 
     print(f"\n{logo}\n")
-    print(f"Ready to call model '{model}'\nModel/Temperature presets loaded from '{toml}'")
+    print(f"Ready to call model '{model}'\nModel/Temperature/Tone presets loaded from '{toml}'")
     mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
     messages = []
 
     if mode == "0":
+
         # tone selection
         tn_list = list(tone_dict.keys())
         menu = "\n".join(tn_list)
@@ -90,59 +101,59 @@ while True:
         if tone not in tn_list:
             break
         tone_str = tone_dict[tone].replace("\n", " ").strip()
-        messages.append({"role": "system", "content": tone_str})            # Add system dict to messages list
+        messages.append({"role": "system", "content": tone_str})            # Add system prompt to messages list
 
         # SESSION LOOP
         while True:
 
             # prompt declaration
-            prompt = input(f"Kimi K2 ({tone}) prompt:\n~ ")
+            prompt = input(f"{model} ({tone}) prompt:\n~ ")
             if not prompt:
                 break
-            messages.append({"role":"user", "content": prompt})             # Add user prompt to messages list
+
+            messages.append({"role":"user", "content": prompt.strip()})             # Add user prompt to messages list
 
             # max token allocation
             budget = input("Max Tokens:\n~ ")
             max_tokens = int(budget) if budget else max_tokens
 
             # payload construction
-            params = [model, messages, temp, max_tokens]                    # Build parameter list
+            params = [model, messages, temp, max_tokens]                    # Build parameter list for buildpayload()
             payload = buildpayload(params)
 
-            # Payload Preview (non-essential):
+            # Payload Preview                                               # (nonessential) Display of payload and final consent
             print(f"Here is your payload preview:\n\n{payload}\n\n")
             user = input("Confirm prompt send? Y/n\n~ ")
-            if user.upper() != "Y":
+            if user.upper() not in ("Y",""):
                 break
 
-            # Payload Delivery
             print("\n>>> calling OpenRouter ...\n")
-            try:
-                response = client.chat.completions.create(**payload)
-                answer = response.choices[0].message.content.strip()
-            except Exception as e:
-                sys.exit(f"API error: {e}")
-
-            timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")
+            
+            # API CALL
+            answer = apidrop(payload)
+            
+            timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")       # get the date+time of response as a string
 
             # Print to CLI
             print(timestamp)
-            print("--- Kimi K2 says ---\n")
+            print(f"--- {model} says ---\n")
             print(f"{answer}\n")
 
-            messages.append({"role":"assistant","content": answer})         # Add response to messages list
+            messages.append({"role":"assistant","content": answer.strip()})         # Add response to messages list
 
             # Consent to re-loop/continue SESSION LOOP
             user = input("Continue? Y/n\n~ " )
-            if user.upper() != "Y":
+
+            if user.upper() not in ("Y",""):
                 break
 
     # SINGLE-PROMPT LOOP
+
     elif mode == "1":
         tone = "default"
         messages = []
-        prompt = input("Kimi K2 prompt:\n~ ")
-        messages.append({"role":"user","content":prompt})                   # Add user prompt to messages list
+        prompt = input("{model} ({tone}) prompt:\n~ ")
+        messages.append({"role":"user","content":prompt.strip()})                   # Add user prompt to messages list
         budget = input("Max Tokens:\n~ ")
         max_tokens = int(budget) if budget else max_tokens
 
@@ -151,37 +162,36 @@ while True:
 
         print(f"Here is your payload preview:\n\n{payload}\n\n")
         user = input("Confirm prompt send? Y/n\n~ ")
-        if user.upper() != "Y":
+        if user.upper() not in ("Y",""):
             break
 
         print("\n>>> calling OpenRouter ...\n")
-        try:
-            response = client.chat.completions.create(**payload)
-            answer = response.choices[0].message.content.strip()
-        except Exception as e:
-            sys.exit(f"API error: {e}")
+
+        # The API CALL
+        answer = apidrop(payload)
 
         timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")
 
         print(timestamp)
-        print("--- Kimi K2 says ---\n")
+        print(f"--- {model} says ---\n")
         print(f"{answer}\n")
 
-        messages.append({"role":"assistant","content": answer})             # Add response to messages list
+        messages.append({"role":"assistant","content": answer.strip()})             # Add response to messages list
 
     else:
         break
 
     # Save to File
     user = input("Save response to file? Y/n\n~ ")
-    if user.upper() != "Y":
+    if user.upper() not in ("Y",""):
         continue
     else:
         if mode == "0":
-            print("Session will be saved in today's session file.")
+            print(f"Session will be saved in today's {tone} session file.")
         else:
             print("Session will be saved to master log.")
 
+        # extract content of messages list in desired markdown format
         entries = []
         for dic in messages:
             if dic["role"] == "system":
@@ -223,5 +233,5 @@ while True:
     
     # Consent to re-loop/continue CORE LOOP
     again = input("Call Kimi K2 with another prompt? Y/n\n~ ")
-    if again.upper() != "Y":
+    if again.upper() not in ("Y",""):
         break
