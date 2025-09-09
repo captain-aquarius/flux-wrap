@@ -81,8 +81,9 @@ def apidrop(payload:dict)->str:
 
 
 # ASCII art
-txt = "kimi  k2"
-logo = text2art(txt,font="small")
+txt1 = model.rsplit("/",1)[-1]
+txt2 = txt1.split(":",1)[0]
+logo = text2art(txt2,font="small")
 
 # CORE LOOP
 while True:
@@ -152,7 +153,7 @@ while True:
     elif mode == "1":
         tone = "default"
         messages = []
-        prompt = input("{model} ({tone}) prompt:\n~ ")
+        prompt = input(f"{model} ({tone}) prompt:\n~ ")
         messages.append({"role":"user","content":prompt.strip()})                   # Add user prompt to messages list
         budget = input("Max Tokens:\n~ ")
         max_tokens = int(budget) if budget else max_tokens
