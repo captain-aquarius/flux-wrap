@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-kimik2api.py - minimal Kimi K2 CLI starter
+kimik2api.py - lightweight OpenRouter CLI protocol
 """
 
 import sys
@@ -14,7 +14,7 @@ from openai import OpenAI
 from art import text2art
 
 
-print(f"You are attempting to interface with Kimi K2 through the OpenRouter system.\nAttempting to get API KEY >>>")
+print("Attempting to get API KEY >>>")
 
 # Get API Key from .env
 load_dotenv()
@@ -82,14 +82,14 @@ def apidrop(payload:dict)->str:
 
 # ASCII art
 txt1 = model.rsplit("/",1)[-1]
-txt2 = txt1.split(":",1)[0]
-logo = text2art(txt2,font="small")
+name = txt1.split(":",1)[0]
+logo = text2art(name,font="small")
 
 # CORE LOOP
 while True:
 
     print(f"\n{logo}\n")
-    print(f"Ready to call model '{model}'\nModel/Temperature/Tone presets loaded from '{toml}'")
+    print(f"Ready to call model '{name.upper()}'\nModel/Temperature/Tone presets loaded from '{toml}'")
     mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
     messages = []
 
@@ -108,7 +108,7 @@ while True:
         while True:
 
             # prompt declaration
-            prompt = input(f"{model} ({tone}) prompt:\n~ ")
+            prompt = input(f"{name.upper()} ({tone}) prompt:\n~ ")
             if not prompt:
                 break
 
@@ -137,7 +137,7 @@ while True:
 
             # Print to CLI
             print(timestamp)
-            print(f"--- {model} says ---\n")
+            print(f"--- {name.upper()} says ---\n")
             print(f"{answer}\n")
 
             messages.append({"role":"assistant","content": answer.strip()})         # Add response to messages list
@@ -153,7 +153,7 @@ while True:
     elif mode == "1":
         tone = "default"
         messages = []
-        prompt = input(f"{model} ({tone}) prompt:\n~ ")
+        prompt = input(f"{name.upper()} ({tone}) prompt:\n~ ")
         messages.append({"role":"user","content":prompt.strip()})                   # Add user prompt to messages list
         budget = input("Max Tokens:\n~ ")
         max_tokens = int(budget) if budget else max_tokens
@@ -174,7 +174,7 @@ while True:
         timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")
 
         print(timestamp)
-        print(f"--- {model} says ---\n")
+        print(f"--- {name.upper()} says ---\n")
         print(f"{answer}\n")
 
         messages.append({"role":"assistant","content": answer.strip()})             # Add response to messages list
@@ -190,7 +190,7 @@ while True:
         if mode == "0":
             print(f"Session will be saved in today's {tone} session file.")
         else:
-            print("Session will be saved to master log.")
+            print(f"Session will be saved to {name.upper()} master log.")
 
         # extract content of messages list in desired markdown format
         entries = []
@@ -217,7 +217,7 @@ while True:
             log_file = f"{date}_{tone}.md"
             log = PROJECT_DIR/"sessions"/log_file
         elif mode == "1":
-            log_file = "kimik2_log.md"
+            log_file = f"{name}_log.md"
             log = PROJECT_DIR/log_file
         else:
             break
@@ -233,6 +233,6 @@ while True:
         print(f"Session written to file '{log_file}'")
     
     # Consent to re-loop/continue CORE LOOP
-    again = input("Call Kimi K2 with another prompt? Y/n\n~ ")
+    again = input(f"Call {name.upper()} with another prompt? Y/n\n~ ")
     if again.upper() not in ("Y",""):
         break
