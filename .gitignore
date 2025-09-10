@@ -2,6 +2,6 @@
 __pycache__/
 *pyc
 .env
-kimik2_log.md
 sessions/
 .obsidian/
+*.md
