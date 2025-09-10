@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-kimik2api.py - lightweight OpenRouter CLI protocol
+fluxwrap.py - lightweight OpenRouter CLI protocol
 """
 
 import sys
