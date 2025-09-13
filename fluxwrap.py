@@ -58,15 +58,21 @@ tone = "default"
 
 def buildpayload(param_list:list)->dict:
     """PAYLOAD ASSEMBLY"""
-    model = param_list[0]
-    messages = param_list[1]
-    temp = param_list[2]
-    tokens = int(param_list[3])
+    model, messages, temp, tokens = param_list
+
+    clean_messages = []
+    for msg in messages:
+        clean_msg = {
+                "role": msg["role"],
+                "content": " ".join(msg["content"].split())
+        }
+        clean_messages.append(clean_msg)
+
     payload = {
         "model": model,
-        "messages": messages,
+        "messages": clean_messages,
         "temperature": temp,
-        "max_tokens": tokens,
+        "max_tokens": int(tokens),
     }
     return payload
 
@@ -101,8 +107,7 @@ while True:
         tone = input(f"\nChoose Persona:\n---\n{menu}\n---\n~ ")
         if tone not in tn_list:
             break
-        tone_str = tone_dict[tone].replace("\n", " ").strip()
-        messages.append({"role": "system", "content": tone_str})            # Add system prompt to messages list
+        messages.append({"role": "system", "content": tone_dict[tone]})            # Add system prompt to messages list
 
         # SESSION LOOP
         while True:
@@ -112,7 +117,7 @@ while True:
             if not prompt:
                 break
 
-            messages.append({"role":"user", "content": prompt.strip()})             # Add user prompt to messages list
+            messages.append({"role":"user", "content": prompt})             # Add user prompt to messages list
 
             # max token allocation
             budget = input("Max Tokens:\n~ ")
@@ -129,10 +134,10 @@ while True:
                 break
 
             print("\n>>> calling OpenRouter ...\n")
-            
+
             # API CALL
             answer = apidrop(payload)
-            
+
             timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")       # get the date+time of response as a string
 
             # Print to CLI
@@ -140,7 +145,7 @@ while True:
             print(f"--- {name.upper()} says ---\n")
             print(f"{answer}\n")
 
-            messages.append({"role":"assistant","content": answer.strip()})         # Add response to messages list
+            messages.append({"role":"assistant","content": answer})         # Add response to messages list
 
             # Consent to re-loop/continue SESSION LOOP
             user = input("Continue? Y/n\n~ " )
@@ -154,7 +159,7 @@ while True:
         tone = "default"
         messages = []
         prompt = input(f"{name.upper()} ({tone}) prompt:\n~ ")
-        messages.append({"role":"user","content":prompt.strip()})                   # Add user prompt to messages list
+        messages.append({"role":"user","content":prompt})                   # Add user prompt to messages list
         budget = input("Max Tokens:\n~ ")
         max_tokens = int(budget) if budget else max_tokens
 
@@ -177,7 +182,7 @@ while True:
         print(f"--- {name.upper()} says ---\n")
         print(f"{answer}\n")
 
-        messages.append({"role":"assistant","content": answer.strip()})             # Add response to messages list
+        messages.append({"role":"assistant","content": answer})             # Add response to messages list
 
     else:
         break
