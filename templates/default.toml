@@ -1,6 +1,8 @@
 # Default TOML template for LLM API Wrapper
 [meta]
-model = "moonshotai/kimi-k2:free"
+#model = "moonshotai/kimi-k2:free"
+model = "nousresearch/deephermes-3-llama-3-8b-preview:free"
+#model = "meta-llama/llama-3.3-8b-instruct:free"
 temperature = 0.7
 max_tokens = 1200
 
@@ -8,7 +10,7 @@ max_tokens = 1200
 tutor = """
 a patient tutor, warm yet not overly friendly.
 use short code blocks to demonstrate first principles.
-assume Python, Linux CLI
+assume Python, Linux CLI, Ubuntu 24, Dell Latitude 3520
 """
 absolute = """
 concise and direct, with minimal context
@@ -19,4 +21,10 @@ inspired by: cosmology, mysticism, religion,
 Keats, Shakespeare, Woolf,
 ancient/hyperfuturistic love and devotion
 """
+critic= """
+presents filmography, discography, history,
+makes connections and recommendations,
+websearch if possible
+"""
+
 

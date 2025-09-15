@@ -211,7 +211,7 @@ while True:
             elif dic["role"] == "assistant":
                 ans = dic["content"]
                 entry = (
-                        f"\n*Response:*\n{ans}\n"
+                        f"\n*{name} Response:*\n{ans}\n"
                         "\n---\n"
                 )
                 entries.append(entry)
