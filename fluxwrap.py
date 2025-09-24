@@ -44,10 +44,11 @@ except FileNotFoundError:
 except tomllib.TOMLDecodeError as e:
     sys.exit(f"TOML error: {e}")
 
-# Retrieve metadata + tones
+# Retrieve meta + models + tones
 meta = toml_data.get("meta", {})
-if not meta.get("model"):
-    sys.exit("TOML must contain [meta].model")
+#if not meta.get("model"):
+#    sys.exit("TOML must contain [meta].model")
+model_dict = toml_data.get("models", {})
 tone_dict = toml_data.get("tones", {})
 
 # Initialize required parameters for buildpayload(params:list)->dict:
@@ -85,6 +86,16 @@ def apidrop(payload:dict)->str:
     except Exception as e:
         sys.exit(f"API error: {e}")
 
+# MODEL SELECTION
+# model_choices = {i: m_name for i, (m_name, m_descript) in enumerate(model_dict.items(), 1)}
+model_choices = {}
+for i, (m_name,m_descript) in enumerate(model_dict.items(), 1):
+    model_choices[i] = m_name
+    print(f" {i}: {m_name}")
+    print(f"    {m_descript}")
+m_select = input("Selection:\n~")
+model = model_choices[int(m_select)]
+
 
 # ASCII art
 txt1 = model.rsplit("/",1)[-1]
@@ -107,7 +118,8 @@ while True:
         tone = input(f"\nChoose Persona:\n---\n{menu}\n---\n~ ")
         if tone not in tn_list:
             break
-        messages.append({"role": "system", "content": tone_dict[tone]})            # Add system prompt to messages list
+        elif tone != "default":
+            messages.append({"role": "system", "content": tone_dict[tone]})            # Add system prompt to messages list
 
         # SESSION LOOP
         while True:
