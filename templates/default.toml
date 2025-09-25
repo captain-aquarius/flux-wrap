@@ -1,12 +1,21 @@
 # Default TOML template for LLM API Wrapper
 [meta]
-#model = "moonshotai/kimi-k2:free"
-model = "nousresearch/deephermes-3-llama-3-8b-preview:free"
-#model = "meta-llama/llama-3.3-8b-instruct:free"
 temperature = 0.7
 max_tokens = 1200
 
+[models]
+"moonshotai/kimi-k2-0905" = "Kimi K2 Flagship"
+"x-ai/grok-4-fast:free" = "Grok 4 Fast (Free)"
+"openai/gpt-5" = "ChatGPT 5"
+"moonshotai/kimi-k2:free" = "Kimi K2 Free {down 9/23}"
+"nousresearch/deephermes-3-llama-3-8b-preview:free" = "DeepHermes 3 Preview (Free)"
+"meta-llama/llama-3.3-8b-instruct:free" = "Meta Instruct Free"
+"google/gemma-3n-e2b-it:free" = "Google Gemma Free {down 9/23}"
+"anthropic/claude-3-haiku" = "Claude 3 Haiku"
+
 [tones]
+default = ""
+
 tutor = """
 a patient tutor, warm yet not overly friendly.
 use short code blocks to demonstrate first principles.

@@ -46,13 +46,10 @@ except tomllib.TOMLDecodeError as e:
 
 # Retrieve meta + models + tones
 meta = toml_data.get("meta", {})
-#if not meta.get("model"):
-#    sys.exit("TOML must contain [meta].model")
 model_dict = toml_data.get("models", {})
 tone_dict = toml_data.get("tones", {})
 
 # Initialize required parameters for buildpayload(params:list)->dict:
-model = meta["model"]
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
 tone = "default"
@@ -87,13 +84,13 @@ def apidrop(payload:dict)->str:
         sys.exit(f"API error: {e}")
 
 # MODEL SELECTION
-# model_choices = {i: m_name for i, (m_name, m_descript) in enumerate(model_dict.items(), 1)}
 model_choices = {}
+print("\nThe following models are available via OpenRouter:\n")
 for i, (m_name,m_descript) in enumerate(model_dict.items(), 1):
     model_choices[i] = m_name
     print(f" {i}: {m_name}")
     print(f"    {m_descript}")
-m_select = input("Selection:\n~")
+m_select = input("\nSelection:\n~")
 model = model_choices[int(m_select)]
 
 
