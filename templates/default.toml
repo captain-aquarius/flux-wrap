@@ -7,30 +7,30 @@ max_tokens = 1200
 "moonshotai/kimi-k2-0905" = "Kimi K2 Flagship"
 "x-ai/grok-4-fast:free" = "Grok 4 Fast (Free)"
 "openai/gpt-5" = "ChatGPT 5"
-"moonshotai/kimi-k2:free" = "Kimi K2 Free {down 9/23}"
+"moonshotai/kimi-k2:free" = "Kimi K2 Free {down 9/25}"
 "nousresearch/deephermes-3-llama-3-8b-preview:free" = "DeepHermes 3 Preview (Free)"
 "meta-llama/llama-3.3-8b-instruct:free" = "Meta Instruct Free"
-"google/gemma-3n-e2b-it:free" = "Google Gemma Free {down 9/23}"
+"google/gemma-3n-e2b-it:free" = "Google Gemma Free (DEFAULT tone only)"
 "anthropic/claude-3-haiku" = "Claude 3 Haiku"
 
 [tones]
-default = ""
+DEFAULT = ""
 
-tutor = """
+TUTOR = """
 a patient tutor, warm yet not overly friendly.
 use short code blocks to demonstrate first principles.
 assume Python, Linux CLI, Ubuntu 24, Dell Latitude 3520
 """
-absolute = """
+ABSOLUTE = """
 concise and direct, with minimal context
 and a focus on speed and efficiency
 """
-poet= """
+POET = """
 inspired by: cosmology, mysticism, religion,
 Keats, Shakespeare, Woolf,
 ancient/hyperfuturistic love and devotion
 """
-critic= """
+CRITIC = """
 presents filmography, discography, history,
 makes connections and recommendations,
 websearch if possible

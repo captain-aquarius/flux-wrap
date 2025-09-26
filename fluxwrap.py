@@ -45,14 +45,14 @@ except tomllib.TOMLDecodeError as e:
     sys.exit(f"TOML error: {e}")
 
 # Retrieve meta + models + tones
-meta = toml_data.get("meta", {})
-model_dict = toml_data.get("models", {})
-tone_dict = toml_data.get("tones", {})
+meta = toml_data["meta"]
+model_dict = toml_data["models"]
+tone_dict = toml_data["tones"]
 
 # Initialize required parameters for buildpayload(params:list)->dict:
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
-tone = "default"
+tone = "DEFAULT"
 
 def buildpayload(param_list:list)->dict:
     """PAYLOAD ASSEMBLY"""
@@ -84,9 +84,10 @@ def apidrop(payload:dict)->str:
         sys.exit(f"API error: {e}")
 
 # MODEL SELECTION
+enum_mdl = enumerate(model_dict.items(), 1)
 model_choices = {}
 print("\nThe following models are available via OpenRouter:\n")
-for i, (m_name,m_descript) in enumerate(model_dict.items(), 1):
+for i, (m_name,m_descript) in enum_mdl:
     model_choices[i] = m_name
     print(f" {i}: {m_name}")
     print(f"    {m_descript}")
@@ -97,7 +98,7 @@ model = model_choices[int(m_select)]
 # ASCII art
 txt1 = model.rsplit("/",1)[-1]
 name = txt1.split(":",1)[0]
-logo = text2art(name,font="small")
+logo = text2art(name,font="ogre")
 
 # CORE LOOP
 while True:
@@ -109,13 +110,16 @@ while True:
 
     if mode == "0":
 
-        # tone selection
-        tn_list = list(tone_dict.keys())
-        menu = "\n".join(tn_list)
-        tone = input(f"\nChoose Persona:\n---\n{menu}\n---\n~ ")
-        if tone not in tn_list:
-            break
-        elif tone != "default":
+        # TONE SELECTION
+        enum_tn = enumerate(tone_dict.items(), 0)
+        tone_choices = {}
+        print("\nThe following tones are available:\n")
+        for i, (tn_name,tn_str) in enum_tn:
+            tone_choices[i] = tn_name
+            print(f" {i}: {tn_name}\n")
+        tn_select = input("Selection:\n~")
+        tone = tone_choices[int(tn_select)]
+        if tone != "DEFAULT":
             messages.append({"role": "system", "content": tone_dict[tone]})            # Add system prompt to messages list
 
         # SESSION LOOP
@@ -228,7 +232,7 @@ while True:
 
         if mode == "0":
             date = datetime.now().strftime("%m_%d_%Y")
-            log_file = f"{date}_{tone}.md"
+            log_file = f"{date}_{tone.lower()}.md"
             log = PROJECT_DIR/"sessions"/log_file
         elif mode == "1":
             log_file = f"{name}_log.md"
