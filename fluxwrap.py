@@ -51,6 +51,7 @@ tone_dict = toml_data["tones"]
 # Initialize required parameters for buildpayload(params:list)->dict:
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
+tone = "default"
 
 def buildpayload(param_list:list)->dict:
     """PAYLOAD ASSEMBLY"""
@@ -121,7 +122,9 @@ while True:
             print(f" {i}: {tn_name.upper()}\n")
         tn_select = input("Selection:\n~ ")
         tone = tone_choices[int(tn_select)]
-        if tone != "DEFAULT":
+        if tone.upper() == "X":
+            sys.exit()
+        if tone != "default":
             messages.append({"role": "system", "content": tone_dict[tone]})            # Add system prompt to messages list
 
         # --- SESSION LOOP --- #
@@ -206,7 +209,7 @@ while True:
         continue
     else:
         if mode == "0":
-            print(f"Session will be saved in today's {tone} session file.")
+            print(f"Session will be saved in today's {tone.upper()} session file.")
         else:
             print(f"Response will be saved to '{name}_log.md'")
 
@@ -233,11 +236,15 @@ while True:
         if mode == "0":
             date = datetime.now().strftime("%m_%d_%Y")
             log_file = f"{date}_{tone}.md"
-            log = PROJECT_DIR/"sessions"/log_file
+            tn_folder = PROJECT_DIR/"sessions"/tone.upper()
+            tn_folder.mkdir(exist_ok=True)
+            log = tn_folder/log_file
+
 
         elif mode == "1":
             log_file = f"{name}_log.md"
-            log = PROJECT_DIR/str(log_file)
+            log = PROJECT_DIR/log_file
+
         else:
             break
 
