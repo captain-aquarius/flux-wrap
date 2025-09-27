@@ -9,7 +9,6 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 import tomllib
-import json
 from openai import OpenAI
 from art import text2art
 
@@ -52,7 +51,6 @@ tone_dict = toml_data["tones"]
 # Initialize required parameters for buildpayload(params:list)->dict:
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
-tone = "DEFAULT"
 
 def buildpayload(param_list:list)->dict:
     """PAYLOAD ASSEMBLY"""
@@ -81,48 +79,52 @@ def apidrop(payload:dict)->str:
         answer = response.choices[0].message.content.strip()
         return answer
     except Exception as e:
-        sys.exit(f"API error: {e}")
+        return f"API error: {e}"
 
-# MODEL SELECTION
-enum_mdl = enumerate(model_dict.items(), 1)
-model_choices = {}
+# --- MODEL SELECTION --- #
 print("\nThe following models are available via OpenRouter:\n")
-for i, (m_name,m_descript) in enum_mdl:
+model_choices = {}
+for i, (m_name,m_descript) in enumerate(model_dict.items(), 1):
     model_choices[i] = m_name
     print(f" {i}: {m_name}")
     print(f"    {m_descript}")
-m_select = input("\nSelection:\n~")
+m_select = input("\nSelection:\n~ ")
+if m_select.upper() == "X":
+    sys.exit()
 model = model_choices[int(m_select)]
 
 
-# ASCII art
+#---#ASCII ART GEN#---#
+
+# hide company
 txt1 = model.rsplit("/",1)[-1]
+# hide 'free' indicator
 name = txt1.split(":",1)[0]
+
 logo = text2art(name,font="ogre")
 
-# CORE LOOP
+# --- CORE LOOP --- #
 while True:
 
     print(f"\n{logo}\n")
-    print(f"Ready to call model '{name.upper()}'\nModel/Temperature/Tone presets loaded from '{toml}'")
+    print(f"Ready to call model '{model.upper()}'\nModel/Temperature/Tone presets loaded from '{toml}'")
     mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
     messages = []
-
+    # --- SESSION LOOP --- #
     if mode == "0":
 
-        # TONE SELECTION
-        enum_tn = enumerate(tone_dict.items(), 0)
-        tone_choices = {}
+        # --- TONE SELECTION --- #
         print("\nThe following tones are available:\n")
-        for i, (tn_name,tn_str) in enum_tn:
+        tone_choices = {}
+        for i, (tn_name,tn_str) in enumerate(tone_dict.items(), 0):
             tone_choices[i] = tn_name
-            print(f" {i}: {tn_name}\n")
-        tn_select = input("Selection:\n~")
+            print(f" {i}: {tn_name.upper()}\n")
+        tn_select = input("Selection:\n~ ")
         tone = tone_choices[int(tn_select)]
         if tone != "DEFAULT":
             messages.append({"role": "system", "content": tone_dict[tone]})            # Add system prompt to messages list
 
-        # SESSION LOOP
+        # --- SESSION LOOP --- #
         while True:
 
             # prompt declaration
@@ -166,8 +168,7 @@ while True:
             if user.upper() not in ("Y",""):
                 break
 
-    # SINGLE-PROMPT LOOP
-
+    #---SINGLE-PROMPT LOOP---#
     elif mode == "1":
         tone = "default"
         messages = []
@@ -188,7 +189,6 @@ while True:
 
         # The API CALL
         answer = apidrop(payload)
-
         timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")
 
         print(timestamp)
@@ -208,7 +208,7 @@ while True:
         if mode == "0":
             print(f"Session will be saved in today's {tone} session file.")
         else:
-            print(f"Session will be saved to {name.upper()} master log.")
+            print(f"Response will be saved to '{name}_log.md'")
 
         # extract content of messages list in desired markdown format
         entries = []
@@ -232,11 +232,12 @@ while True:
 
         if mode == "0":
             date = datetime.now().strftime("%m_%d_%Y")
-            log_file = f"{date}_{tone.lower()}.md"
+            log_file = f"{date}_{tone}.md"
             log = PROJECT_DIR/"sessions"/log_file
+
         elif mode == "1":
             log_file = f"{name}_log.md"
-            log = PROJECT_DIR/log_file
+            log = PROJECT_DIR/str(log_file)
         else:
             break
 
@@ -248,9 +249,9 @@ while True:
 
         with log.open("w", encoding="utf-8") as f:
             f.write(f"\n## {timestamp}\n" + session + old)
-        print(f"Session written to file '{log_file}'")
+        print(f"Saved in '{log_file}'")
     
     # Consent to re-loop/continue CORE LOOP
-    again = input(f"Call {name.upper()} with another prompt? Y/n\n~ ")
+    again = input(f"Call {model.upper()} with another prompt? Y/n\n~ ")
     if again.upper() not in ("Y",""):
         break

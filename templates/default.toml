@@ -14,23 +14,23 @@ max_tokens = 1200
 "anthropic/claude-3-haiku" = "Claude 3 Haiku"
 
 [tones]
-DEFAULT = ""
+default = ""
 
-TUTOR = """
+tutor = """
 a patient tutor, warm yet not overly friendly.
 use short code blocks to demonstrate first principles.
 assume Python, Linux CLI, Ubuntu 24, Dell Latitude 3520
 """
-ABSOLUTE = """
+absolute = """
 concise and direct, with minimal context
 and a focus on speed and efficiency
 """
-POET = """
+poet = """
 inspired by: cosmology, mysticism, religion,
 Keats, Shakespeare, Woolf,
 ancient/hyperfuturistic love and devotion
 """
-CRITIC = """
+critic = """
 presents filmography, discography, history,
 makes connections and recommendations,
 websearch if possible
