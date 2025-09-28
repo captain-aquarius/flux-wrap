@@ -87,8 +87,7 @@ print("\nThe following models are available via OpenRouter:\n")
 model_choices = {}
 for i, (m_name,m_descript) in enumerate(model_dict.items(), 1):
     model_choices[i] = m_name
-    print(f" {i}: {m_name}")
-    print(f"    {m_descript}")
+    print(f" {i}: {m_descript}\n")
 m_select = input("\nSelection:\n~ ")
 if m_select.upper() == "X":
     sys.exit()
@@ -121,9 +120,9 @@ while True:
             tone_choices[i] = tn_name
             print(f" {i}: {tn_name.upper()}\n")
         tn_select = input("Selection:\n~ ")
-        tone = tone_choices[int(tn_select)]
         if tone.upper() == "X":
             sys.exit()
+        tone = tone_choices[int(tn_select)]
         if tone != "default":
             messages.append({"role": "system", "content": tone_dict[tone]})            # Add system prompt to messages list
 
