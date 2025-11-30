@@ -98,19 +98,16 @@ while True:
     for i, (m_name,m_descript) in enumerate(model_dict.items(), 1):
         model_choices[i] = m_name
         print(f" {i}: {m_descript}\n")
-    m_select = input("\nSelection:\n~ ")
+    m_select = input("\nModel Selection (X to Exit):\n~ ")
     if m_select.upper() == "X":
         break
     model = model_choices[int(m_select)]
 
 
-    #---#ASCII ART GEN#---#
+    # --- ASCII ART GEN --- #
 
-    # hide company
     txt1 = model.rsplit("/",1)[-1]
-    # hide 'free' indicator
     name = txt1.split(":",1)[0]
-
     logo = text2art(name,font="ogre")
 
     # --- CORE LOOP --- #
@@ -271,4 +268,4 @@ while True:
         # Consent to re-loop/continue CORE LOOP
         again = input(f"Call {model.upper()} with another prompt? Y/n\n~ ")
         if again.upper() not in ("Y",""):
-            break # This breaks the inner while True, returning to model selection
+            break
