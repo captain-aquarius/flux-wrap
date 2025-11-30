@@ -48,6 +48,13 @@ meta = toml_data["meta"]
 model_dict = toml_data["models"]
 tone_dict = toml_data["tones"]
 
+# Retreive directory for saving sessions
+save_dir_str = meta.get("save_dir", str(PROJECT_DIR))
+if save_dir_str:
+    SAVE_DIR = Path(os.path.expanduser(save_dir_str))
+else:
+    SAVE_DIR = PROJECT_DIR
+
 # Initialize required parameters for buildpayload(params:list)->dict:
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
@@ -110,6 +117,7 @@ while True:
     print(f"Ready to call model '{model.upper()}'\nModel/Temperature/Tone presets loaded from '{toml}'")
     mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
     messages = []
+
     # --- SESSION LOOP --- #
     if mode == "0":
 
@@ -235,14 +243,14 @@ while True:
         if mode == "0":
             date = datetime.now().strftime("%m_%d_%Y")
             log_file = f"{date}_{tone}.md"
-            tn_folder = PROJECT_DIR/"sessions"/tone.upper()
+            tn_folder = SAVE_DIR/tone.upper()
             tn_folder.mkdir(exist_ok=True)
             log = tn_folder/log_file
 
 
         elif mode == "1":
             log_file = f"{name}_log.md"
-            log = PROJECT_DIR/log_file
+            log = SAVE_DIR/log_file
 
         else:
             break
