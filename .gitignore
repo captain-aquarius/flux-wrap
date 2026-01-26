@@ -2,6 +2,6 @@
 __pycache__/
 *pyc
 .env
-sessions/
-.obsidian/
-*.md
+.gemini/
+gha-creds-*.json
+GEMINI.md

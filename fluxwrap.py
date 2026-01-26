@@ -127,7 +127,7 @@ while True:
             for i, (tn_name,tn_str) in enumerate(tone_dict.items(), 0):
                 tone_choices[i] = tn_name
                 print(f" {i}: {tn_name.upper()}\n")
-            tn_select = input("Selection:\n~ ")
+            tn_select = input("Tone Selection:\n~ ")
             if tn_select.upper() == "X":
                 break
             tone = tone_choices[int(tn_select)]
