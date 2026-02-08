@@ -11,9 +11,10 @@ from dotenv import load_dotenv
 import tomllib
 from openai import OpenAI
 from art import text2art
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
 
-
-print("Attempting to get API KEY >>>")
 
 # Get API Key from .env
 load_dotenv()
@@ -37,7 +38,7 @@ toml = "default.toml"
 toml_path = PROJECT_DIR/"templates"/toml
 try:
     with toml_path.open("rb") as f:
-        toml_data = tomllib.load(f)                                         # TOML becomes Python dictionary toml_data
+        toml_data = tomllib.load(f)                                         
 except FileNotFoundError:
     sys.exit(f"{toml_path} not found")
 except tomllib.TOMLDecodeError as e:
@@ -59,6 +60,9 @@ else:
 temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
 tone = "default"
+
+# call UI Console
+console = Console()
 
 def buildpayload(param_list:list)->dict:
     """PAYLOAD ASSEMBLY"""
@@ -88,6 +92,16 @@ def apidrop(payload:dict)->str:
         return answer
     except Exception as e:
         return f"API error: {e}"
+
+def beautify(answer:str, model_name:str):
+    md = Markdown(answer)
+    panel = Panel(
+            md,
+            title=f"[bold blue]{model_name}[/bold blue]",
+            border_style="bright_magenta",
+            padding=(1,2)
+    )
+    console.print(panel)
 
 # --- MAIN PROGRAM LOOP --- #
 while True:
@@ -132,7 +146,7 @@ while True:
                 break
             tone = tone_choices[int(tn_select)]
             if tone != "default":
-                messages.append({"role": "system", "content": tone_dict[tone]})            # Add system prompt to messages list
+                messages.append({"role": "system", "content": tone_dict[tone]})            
 
             # --- SESSION LOOP --- #
             while True:
@@ -142,35 +156,36 @@ while True:
                 if not prompt:
                     break
 
-                messages.append({"role":"user", "content": prompt})             # Add user prompt to messages list
+                messages.append({"role":"user", "content": prompt})             
 
                 # max token allocation
                 budget = input("Max Tokens:\n~ ")
                 max_tokens = int(budget) if budget else max_tokens
 
                 # payload construction
-                params = [model, messages, temp, max_tokens]                    # Build parameter list for buildpayload()
+                params = [model, messages, temp, max_tokens]                    
                 payload = buildpayload(params)
 
-                # Payload Preview                                               # (nonessential) Display of payload and final consent
+                # Payload Preview                                               
                 print(f"Here is your payload preview:\n\n{payload}\n\n")
                 user = input("Confirm prompt send? Y/n\n~ ")
                 if user.upper() not in ("Y",""):
                     break
 
-                print("\n>>> calling OpenRouter ...\n")
+                print("\n>>> calling OpenRouter >>>\n")
 
                 # API CALL
                 answer = apidrop(payload)
 
-                timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")       # get the date+time of response as a string
+                timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")       
 
                 # Print to CLI
-                print(timestamp)
-                print(f"--- {name.upper()} says ---\n")
-                print(f"{answer}\n")
+                #print(timestamp)
+                #print(f"--- {name.upper()} says ---\n")
+                #print(f"{answer}\n")
 
-                messages.append({"role":"assistant","content": answer})         # Add response to messages list
+                beautify(answer, name)
+                messages.append({"role":"assistant","content": answer})         
 
                 # Consent to re-loop/continue SESSION LOOP
                 user = input("Continue? Y/n\n~ " )
@@ -183,7 +198,7 @@ while True:
             tone = "default"
             messages = []
             prompt = input(f"{name.upper()} ({tone}) prompt:\n~ ")
-            messages.append({"role":"user","content":prompt})                   # Add user prompt to messages list
+            messages.append({"role":"user","content":prompt})                   
             budget = input("Max Tokens:\n~ ")
             max_tokens = int(budget) if budget else max_tokens
 
@@ -195,7 +210,7 @@ while True:
             if user.upper() not in ("Y",""):
                 break
 
-            print("\n>>> calling OpenRouter ...\n")
+            print("\n>>> calling OpenRouter >>>\n")
 
             # The API CALL
             answer = apidrop(payload)
@@ -205,7 +220,7 @@ while True:
             print(f"--- {name.upper()} says ---\n")
             print(f"{answer}\n")
 
-            messages.append({"role":"assistant","content": answer})             # Add response to messages list
+            messages.append({"role":"assistant","content": answer})             
 
         else:
             break
