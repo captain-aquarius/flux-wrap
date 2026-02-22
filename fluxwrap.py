@@ -50,11 +50,15 @@ model_dict = toml_data["models"]
 tone_dict = toml_data["tones"]
 
 # Retreive directory for saving sessions
-save_dir_str = meta.get("save_dir", str(PROJECT_DIR))
+save_dir_str = os.getenv("SAVE_DIR")
+print(f"save_dir_string = {save_dir_str}")
+
 if save_dir_str:
     SAVE_DIR = Path(os.path.expanduser(save_dir_str))
 else:
     SAVE_DIR = PROJECT_DIR
+
+print(f"Save Directory Retrieved: {SAVE_DIR}")
 
 # Initialize required parameters for buildpayload(params:list)->dict:
 temp = meta["temperature"]
