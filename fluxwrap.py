@@ -118,7 +118,7 @@ while True:
     model_choices = {}
     for i, (m_name,m_descript) in enumerate(model_dict.items(), 1):
         model_choices[i] = m_name
-        print(f" {i}: {m_descript}\n")
+        console.print(f"[bright_yellow] {i}:[/] [bold bright_blue]{m_descript}[/]\n")
     m_select = input("\nModel Selection (X to Exit):\n~ ")
     if m_select.upper() == "X":
         break
@@ -134,7 +134,7 @@ while True:
     # --- CORE LOOP --- #
     while True:
 
-        console.print(Panel(f"\n{logo}\n", style="bold yellow"))
+        console.print(Panel(f"\n{logo}\n", style="bold bright_yellow"))
         print(f"Ready to call model '{model.upper()}'\nModel/Temperature/Tone presets loaded from '{toml}'")
         mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
         messages = []
@@ -147,7 +147,7 @@ while True:
             tone_choices = {}
             for i, (tn_name,tn_str) in enumerate(tone_dict.items(), 0):
                 tone_choices[i] = tn_name
-                print(f" {i}: {tn_name.upper()}\n")
+                console.print(f"[bright_yellow] {i}:[/] [bold bright_magenta]{tn_name.upper()}[/]\n")
             tn_select = input("Tone Selection:\n~ ")
             if tn_select.upper() == "X":
                 break
