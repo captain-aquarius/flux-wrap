@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-fluxwrap.py - lightweight OpenRouter CLI protocol
+FluxWrap - OpenRouter CLI protocol
 """
 
 import sys
@@ -21,7 +21,8 @@ load_dotenv()
 api_key = os.getenv("API_KEY")
 if not api_key:
     sys.exit("No API_KEY located.")
-print(f"API_KEY of length {len(api_key)} characters obtained.")
+
+# print(f"API_KEY of length {len(api_key)} characters obtained.")
 
 # Initialize OpenRouter
 base_url = "https://openrouter.ai/api/v1"
@@ -32,6 +33,18 @@ client = OpenAI(
 
 # Locate yourself in the file system
 PROJECT_DIR = Path(__file__).resolve().parent
+
+# Retreive directory for saving sessions
+save_dir_str = os.getenv("SAVE_DIR")
+
+# print(f"save_dir_string = {save_dir_str}")
+
+if save_dir_str:
+    SAVE_DIR = Path(os.path.expanduser(save_dir_str))
+else:
+    SAVE_DIR = PROJECT_DIR
+
+# print(f"Save Directory Retrieved: {SAVE_DIR}")
 
 # load the TOML
 toml = "default.toml"
@@ -48,17 +61,6 @@ except tomllib.TOMLDecodeError as e:
 meta = toml_data["meta"]
 model_dict = toml_data["models"]
 tone_dict = toml_data["tones"]
-
-# Retreive directory for saving sessions
-save_dir_str = os.getenv("SAVE_DIR")
-print(f"save_dir_string = {save_dir_str}")
-
-if save_dir_str:
-    SAVE_DIR = Path(os.path.expanduser(save_dir_str))
-else:
-    SAVE_DIR = PROJECT_DIR
-
-print(f"Save Directory Retrieved: {SAVE_DIR}")
 
 # Initialize required parameters for buildpayload(params:list)->dict:
 temp = meta["temperature"]
@@ -101,8 +103,9 @@ def beautify(answer:str, model_name:str):
     md = Markdown(answer)
     panel = Panel(
             md,
-            title=f"[bold blue]{model_name}[/bold blue]",
+            title=f"[bold bright_blue]{model_name}[/]",
             border_style="bright_magenta",
+            subtitle=f"[italic bright_blue]{timestamp}[/]",
             padding=(1,2)
     )
     console.print(panel)
@@ -131,7 +134,7 @@ while True:
     # --- CORE LOOP --- #
     while True:
 
-        print(f"\n{logo}\n")
+        console.print(Panel(f"\n{logo}\n", style="bold yellow"))
         print(f"Ready to call model '{model.upper()}'\nModel/Temperature/Tone presets loaded from '{toml}'")
         mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
         messages = []
@@ -176,20 +179,18 @@ while True:
                 if user.upper() not in ("Y",""):
                     break
 
-                print("\n>>> calling OpenRouter >>>\n")
-
                 # API CALL
-                answer = apidrop(payload)
+                
+                with console.status(
+                        "[bold yellow]Calling OpenRouter...[/]", 
+                        spinner="aesthetic"
+                ) as status:
+                    answer = apidrop(payload)
 
                 timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")       
-
-                # Print to CLI
-                #print(timestamp)
-                #print(f"--- {name.upper()} says ---\n")
-                #print(f"{answer}\n")
+                messages.append({"role":"assistant","content": answer})         
 
                 beautify(answer, name)
-                messages.append({"role":"assistant","content": answer})         
 
                 # Consent to re-loop/continue SESSION LOOP
                 user = input("Continue? Y/n\n~ " )
@@ -265,7 +266,6 @@ while True:
                 tn_folder = SAVE_DIR/tone.upper()
                 tn_folder.mkdir(exist_ok=True)
                 log = tn_folder/log_file
-
 
             elif mode == "1":
                 log_file = f"{name}_log.md"
