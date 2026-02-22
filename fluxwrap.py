@@ -103,9 +103,9 @@ def beautify(answer:str, model_name:str):
     md = Markdown(answer)
     panel = Panel(
             md,
-            title=f"[bold bright_blue]{model_name}[/]",
+            title=f"[bold bright_yellow]{model_name}[/]",
             border_style="bright_magenta",
-            subtitle=f"[italic bright_blue]{timestamp}[/]",
+            subtitle=f"[italic bright_magenta]{timestamp}[/]",
             padding=(1,2)
     )
     console.print(panel)
