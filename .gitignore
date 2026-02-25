@@ -7,3 +7,4 @@ gha-creds-*.json
 GEMINI.md
 private_config.toml
 .DS_Store
+sessions/
