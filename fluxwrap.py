@@ -15,6 +15,8 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 
+# call UI Console
+console = Console()
 
 # Get API Key from .env
 load_dotenv()
@@ -34,26 +36,32 @@ client = OpenAI(
 # Locate yourself in the file system
 PROJECT_DIR = Path(__file__).resolve().parent
 
-# Retreive directory for saving sessions
+# Retreive directory for saving sessions and a private TOML config
 save_dir_str = os.getenv("SAVE_DIR")
+private_config_str = os.getenv("PRIVATE_CONFIG")
 
-# print(f"save_dir_string = {save_dir_str}")
 
 if save_dir_str:
     SAVE_DIR = Path(os.path.expanduser(save_dir_str))
+    console.print(Panel(f"Save Directory = {save_dir_str}", width=40))
 else:
     SAVE_DIR = PROJECT_DIR
 
-# print(f"Save Directory Retrieved: {SAVE_DIR}")
+if private_config_str:
+    PRIVATE_CONFIG = Path(os.path.expanduser(private_config_str))
+    console.print(Panel(f"Private Config = {private_config_str}", width=40))
+else:
+    print("No path to private config file found.")
 
 # load the TOML
-toml = "default.toml"
-toml_path = PROJECT_DIR/"templates"/toml
+toml = "default_config.toml"
+toml_path = PROJECT_DIR/toml
 try:
     with toml_path.open("rb") as f:
         toml_data = tomllib.load(f)                                         
+        console.print(Panel(f"Default Config = {toml_path}"), width=40)
 except FileNotFoundError:
-    sys.exit(f"{toml_path} not found")
+    sys.exit(f"{toml} not found")
 except tomllib.TOMLDecodeError as e:
     sys.exit(f"TOML error: {e}")
 
@@ -67,8 +75,6 @@ temp = meta["temperature"]
 max_tokens = meta["max_tokens"]
 tone = "default"
 
-# call UI Console
-console = Console()
 
 def buildpayload(param_list:list)->dict:
     """PAYLOAD ASSEMBLY"""

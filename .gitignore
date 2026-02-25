@@ -5,3 +5,5 @@ __pycache__/
 .gemini/
 gha-creds-*.json
 GEMINI.md
+private_config.toml
+.DS_Store
