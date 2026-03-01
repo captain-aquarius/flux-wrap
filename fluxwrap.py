@@ -54,7 +54,7 @@ else:
     print("No path to private config file found.")
 
 # load the TOML
-toml = "default_config.toml"
+toml = "flux_config.toml"
 toml_path = PROJECT_DIR/toml
 try:
     with toml_path.open("rb") as f:
