@@ -24,8 +24,6 @@ api_key = os.getenv("API_KEY")
 if not api_key:
     sys.exit("No API_KEY located.")
 
-# print(f"API_KEY of length {len(api_key)} characters obtained.")
-
 # Initialize OpenRouter
 base_url = "https://openrouter.ai/api/v1"
 client = OpenAI(
@@ -40,7 +38,6 @@ PROJECT_DIR = Path(__file__).resolve().parent
 save_dir_str = os.getenv("SAVE_DIR")
 private_config_str = os.getenv("PRIVATE_CONFIG")
 
-
 if save_dir_str:
     SAVE_DIR = Path(os.path.expanduser(save_dir_str))
     console.print(Panel(f"Save Directory = {save_dir_str}", width=40))
@@ -51,7 +48,7 @@ if private_config_str:
     PRIVATE_CONFIG = Path(os.path.expanduser(private_config_str))
     console.print(Panel(f"Private Config = {private_config_str}", width=40))
 else:
-    print("No path to private config file found.")
+    console.print("No path to private config file found.", style="bold red")
 
 # load the TOML
 toml = "flux_config.toml"
@@ -166,22 +163,31 @@ while True:
 
                 # prompt declaration
                 prompt = input(f"{name.upper()} ({tone}) prompt:\n~ ")
-                if not prompt:
+                if prompt.upper() in ("X",""):
                     break
 
                 messages.append({"role":"user", "content": prompt})             
 
                 # max token allocation
-                budget = input("Max Tokens:\n~ ")
+                budget = input(f"Max Tokens ({max_tokens}):\n~ ")
+                if budget.upper() == "X":
+                    break
                 max_tokens = int(budget) if budget else max_tokens
+
+                # custom temp setting
+                user_temp = input(f"Temperature ({temp}):\n~ ")
+                if user_temp.upper() == "X":
+                    break
+                temp = float(user_temp) if user_temp else temp
 
                 # payload construction
                 params = [model, messages, temp, max_tokens]                    
                 payload = buildpayload(params)
 
                 # Payload Preview                                               
-                print(f"Here is your payload preview:\n\n{payload}\n\n")
-                user = input("Confirm prompt send? Y/n\n~ ")
+                print(f"Here is your payload preview:\n\n")
+                console.print(Panel(f"{payload}"))
+                user = input("\nConfirm prompt send? Y/n\n~ ")
                 if user.upper() not in ("Y",""):
                     break
 
@@ -210,9 +216,10 @@ while True:
             messages = []
             prompt = input(f"{name.upper()} ({tone}) prompt:\n~ ")
             messages.append({"role":"user","content":prompt})                   
-            budget = input("Max Tokens:\n~ ")
+            budget = input(f"Max Tokens ({max_tokens}):\n~ ")
             max_tokens = int(budget) if budget else max_tokens
-
+            user_temp = input(f"Temperature ({temp}):\n~")
+            temp = float(user_temp) if user_temp else temp
             params = [model, messages, temp, max_tokens]
             payload = buildpayload(params)
 
@@ -237,6 +244,8 @@ while True:
             break
 
         # Save to File
+        if prompt.upper() in ("X",""):
+            break
         user = input("Save response to file? Y/n\n~ ")
         if user.upper() not in ("Y",""):
             continue
