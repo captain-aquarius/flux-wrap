@@ -48,9 +48,10 @@ if private_config_str:
     PRIVATE_CONFIG = Path(os.path.expanduser(private_config_str))
     console.print(Panel(f"Private Config = {private_config_str}", width=40))
 else:
+    PRIVATE_CONFIG = None
     console.print("No path to private config file found.", style="bold red")
 
-# load the TOML
+# load the TOML config
 toml = "flux_config.toml"
 toml_path = PROJECT_DIR/toml
 try:
@@ -61,6 +62,22 @@ except FileNotFoundError:
     sys.exit(f"{toml} not found")
 except tomllib.TOMLDecodeError as e:
     sys.exit(f"TOML error: {e}")
+
+# Load and merge private config if it exists
+if PRIVATE_CONFIG and PRIVATE_CONFIG.exists():
+    try:
+        with PRIVATE_CONFIG.open("rb") as f:
+            private_data = tomllib.load(f)
+            # Merge private tones into base config
+            toml_data["tones"].update(private_data.get("tones", {}))
+            console.print(Panel(f"Default and Private Configs Merged", width=40), style="bold magenta")
+    except tomllib.TOMLDecodeError as e:
+        console.print(f"Private TOML error: {e}", style="bold red")
+        # Continue with base config only
+    except FileNotFoundError:
+        console.print(f"Private config file not found at {PRIVATE_CONFIG}", style="bold red")
+else:
+    console.print(Panel(f"Private config file not found.", width=40), style="bold red")
 
 # Retrieve meta + models + tones
 meta = toml_data["meta"]
