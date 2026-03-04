@@ -70,6 +70,7 @@ if PRIVATE_CONFIG and PRIVATE_CONFIG.exists():
             private_data = tomllib.load(f)
             # Merge private tones into base config
             toml_data["tones"].update(private_data.get("tones", {}))
+            toml_data["models"].update(private_data.get("models",{}))
             console.print(Panel(f"Default and Private Configs Merged", width=40), style="bold magenta")
     except tomllib.TOMLDecodeError as e:
         console.print(f"Private TOML error: {e}", style="bold red")
