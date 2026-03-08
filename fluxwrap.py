@@ -18,6 +18,10 @@ from rich.panel import Panel
 # call UI Console
 console = Console()
 
+#print FluxWrap logo
+logo = text2art("FluxWrap","ogre")
+console.print(Panel(logo,width=57,style="bold bright_yellow"))
+
 # Get API Key from .env
 load_dotenv()
 api_key = os.getenv("API_KEY")
@@ -40,13 +44,13 @@ private_config_str = os.getenv("PRIVATE_CONFIG")
 
 if save_dir_str:
     SAVE_DIR = Path(os.path.expanduser(save_dir_str))
-    console.print(Panel(f"Save Directory = {save_dir_str}", width=40))
+    console.print(Panel(f"Save Directory = {save_dir_str}", width=57))
 else:
     SAVE_DIR = PROJECT_DIR
 
 if private_config_str:
     PRIVATE_CONFIG = Path(os.path.expanduser(private_config_str))
-    console.print(Panel(f"Private Config = {private_config_str}", width=40))
+    console.print(Panel(f"Private Config = {private_config_str}", width=57))
 else:
     PRIVATE_CONFIG = None
     console.print("No path to private config file found.", style="bold red")
@@ -57,7 +61,7 @@ toml_path = PROJECT_DIR/toml
 try:
     with toml_path.open("rb") as f:
         toml_data = tomllib.load(f)                                         
-        console.print(Panel(f"Default Config = {toml_path}"), width=40)
+        console.print(Panel(f"Default Config = {toml_path}"), width=57)
 except FileNotFoundError:
     sys.exit(f"{toml} not found")
 except tomllib.TOMLDecodeError as e:
@@ -71,14 +75,14 @@ if PRIVATE_CONFIG and PRIVATE_CONFIG.exists():
             # Merge private tones into base config
             toml_data["tones"].update(private_data.get("tones", {}))
             toml_data["models"].update(private_data.get("models",{}))
-            console.print(Panel(f"Default and Private Configs Merged", width=40), style="bold magenta")
+            console.print(Panel(f"Default and Private Configs Merged", width=57), style="bold magenta")
     except tomllib.TOMLDecodeError as e:
         console.print(f"Private TOML error: {e}", style="bold red")
         # Continue with base config only
     except FileNotFoundError:
         console.print(f"Private config file not found at {PRIVATE_CONFIG}", style="bold red")
 else:
-    console.print(Panel(f"Private config file not found.", width=40), style="bold red")
+    console.print(f"Private config file not found.", style="bold red")
 
 # Retrieve meta + models + tones
 meta = toml_data["meta"]
@@ -121,7 +125,7 @@ def apidrop(payload:dict)->str:
         return f"API error: {e}"
 
 def beautify(answer:str, model_name:str):
-    md = Markdown(answer)
+    md = Markdown(answer, code_theme="dracula")
     panel = Panel(
             md,
             title=f"[bold bright_yellow]{model_name}[/]",
@@ -150,12 +154,12 @@ while True:
 
     txt1 = model.rsplit("/",1)[-1]
     name = txt1.split(":",1)[0]
-    logo = text2art(name,font="ogre")
+    mod_logo = text2art(name,font="ogre")
 
     # --- CORE LOOP --- #
     while True:
 
-        console.print(Panel(f"\n{logo}\n", style="bold bright_yellow"))
+        console.print(Panel(f"\n{mod_logo}\n",style="bold bright_magenta"))
         print(f"Ready to call model '{model.upper()}'\nModel/Temperature/Tone presets loaded from '{toml}'")
         mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
         messages = []
