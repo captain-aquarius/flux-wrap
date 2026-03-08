@@ -154,7 +154,7 @@ while True:
 
     txt1 = model.rsplit("/",1)[-1]
     name = txt1.split(":",1)[0]
-    mod_logo = text2art(name,font="ogre")
+    mod_logo = text2art(name,font="tarty3")
 
     # --- CORE LOOP --- #
     while True:
