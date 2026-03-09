@@ -75,12 +75,21 @@ if PRIVATE_CONFIG and PRIVATE_CONFIG.exists():
             # Merge private tones into base config
             toml_data["tones"].update(private_data.get("tones", {}))
             toml_data["models"].update(private_data.get("models",{}))
-            console.print(Panel(f"Default and Private Configs Merged", width=57), style="bold magenta")
+            console.print(
+                Panel(
+                    "Default and Private Configs Merged", 
+                    width=57
+                ), 
+                style="bold magenta"
+            )
     except tomllib.TOMLDecodeError as e:
         console.print(f"Private TOML error: {e}", style="bold red")
         # Continue with base config only
     except FileNotFoundError:
-        console.print(f"Private config file not found at {PRIVATE_CONFIG}", style="bold red")
+        console.print(
+            f"Private config file not found at {PRIVATE_CONFIG}", 
+            style="bold red"
+        )
 else:
     console.print(f"Private config file not found.", style="bold red")
 
@@ -143,7 +152,9 @@ while True:
     model_choices = {}
     for i, (m_name,m_descript) in enumerate(model_dict.items(), 1):
         model_choices[i] = m_name
-        console.print(f"[bright_yellow] {i}:[/] [bold bright_blue]{m_descript}[/]\n")
+        console.print(
+            f"[bright_yellow] {i}:[/] [bold bright_blue]{m_descript}[/]\n"
+        )
     m_select = input("\nModel Selection (X to Exit):\n~ ")
     if m_select.upper() == "X":
         break
@@ -160,7 +171,10 @@ while True:
     while True:
 
         console.print(Panel(f"\n{mod_logo}\n",style="bold bright_magenta"))
-        print(f"Ready to call model '{model.upper()}'\nModel/Temperature/Tone presets loaded from '{toml}'")
+        print(
+            f"Ready to call model '{model.upper()}'"
+            f"\nModel/Temperature/Tone presets loaded from '{toml}'"
+        )
         mode = input("Enter Session Mode (0) or send single prompt (1)?\n~ ")
         messages = []
 
@@ -172,13 +186,20 @@ while True:
             tone_choices = {}
             for i, (tn_name,tn_str) in enumerate(tone_dict.items(), 0):
                 tone_choices[i] = tn_name
-                console.print(f"[bright_yellow] {i}:[/] [bold bright_magenta]{tn_name.upper()}[/]\n")
+                console.print(
+                    f"[bright_yellow] {i}:[/] [bold bright_magenta]{tn_name.upper()}[/]\n"
+                )
             tn_select = input("Tone Selection:\n~ ")
             if tn_select.upper() == "X":
                 break
             tone = tone_choices[int(tn_select)]
             if tone != "default":
-                messages.append({"role": "system", "content": tone_dict[tone]})            
+                messages.append(
+                    {
+                        "role": "system", 
+                        "content": tone_dict[tone]
+                    }
+                )            
 
             # --- SESSION LOOP --- #
             while True:
@@ -188,7 +209,12 @@ while True:
                 if prompt.upper() in ("X",""):
                     break
 
-                messages.append({"role":"user", "content": prompt})             
+                messages.append(
+                    {
+                        "role":"user", 
+                        "content": prompt
+                    }
+                )             
 
                 # max token allocation
                 budget = input(f"Max Tokens ({max_tokens}):\n~ ")
@@ -222,7 +248,13 @@ while True:
                     answer = apidrop(payload)
 
                 timestamp = datetime.now().strftime("%m-%d-%Y @ %I:%M%p")       
-                messages.append({"role":"assistant","content": answer})         
+
+                messages.append(
+                    {
+                        "role":"assistant",
+                        "content": answer
+                    }
+                )         
 
                 beautify(answer, name)
 
@@ -237,7 +269,12 @@ while True:
             tone = "default"
             messages = []
             prompt = input(f"{name.upper()} ({tone}) prompt:\n~ ")
-            messages.append({"role":"user","content":prompt})                   
+            messages.append(
+                {
+                    "role":"user",
+                    "content":prompt
+                }
+            )                   
             budget = input(f"Max Tokens ({max_tokens}):\n~ ")
             max_tokens = int(budget) if budget else max_tokens
             user_temp = input(f"Temperature ({temp}):\n~")
@@ -260,7 +297,12 @@ while True:
             print(f"--- {name.upper()} says ---\n")
             print(f"{answer}\n")
 
-            messages.append({"role":"assistant","content": answer})             
+            messages.append(
+                {
+                    "role":"assistant",
+                    "content": answer
+                }
+            )             
 
         else:
             break
@@ -273,7 +315,9 @@ while True:
             continue
         else:
             if mode == "0":
-                print(f"Session will be saved in today's {tone.upper()} session file.")
+                print(
+                    f"Session will be saved in today's {tone.upper()} session file."
+                )
             else:
                 print(f"Response will be saved to '{name}_log.md'")
 
