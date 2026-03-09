@@ -2,9 +2,7 @@
 __pycache__/
 *pyc
 .env
-.gemini/
-gha-creds-*.json
-GEMINI.md
+*.md
 flux_private.toml
 .DS_Store
 sessions/
