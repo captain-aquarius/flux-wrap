@@ -179,7 +179,7 @@ while True:
         messages = []
 
         # --- SESSION LOOP --- #
-        if mode == "0":
+        if mode in ["0", ""]:
 
             # --- TONE SELECTION --- #
             print("\nThe following tones are available:\n")
@@ -192,7 +192,11 @@ while True:
             tn_select = input("Tone Selection:\n~ ")
             if tn_select.upper() == "X":
                 break
-            tone = tone_choices[int(tn_select)]
+            elif tn_select == "":
+                tone = "default"
+            else:
+                tone = tone_choices[int(tn_select)]
+
             if tone != "default":
                 messages.append(
                     {
