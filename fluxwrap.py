@@ -346,7 +346,7 @@ while True:
             session = ''.join(entries)
 
             if mode == "0":
-                date = datetime.now().strftime("%m_%d_%Y")
+                date = datetime.now().strftime("%Y-%m-%d")
                 log_file = f"{date}_{tone}.md"
                 tn_folder = SAVE_DIR/tone.upper()
                 tn_folder.mkdir(exist_ok=True)
