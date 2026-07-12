@@ -318,7 +318,7 @@ while True:
         if user.upper() not in ("Y",""):
             continue
         else:
-            if mode == "0":
+            if mode in ["0", ""]:
                 print(
                     f"Session will be saved in today's {tone.upper()} session file."
                 )
@@ -345,7 +345,7 @@ while True:
                     entries.append(entry)
             session = ''.join(entries)
 
-            if mode == "0":
+            if mode in ["0", ""]:
                 date = datetime.now().strftime("%Y-%m-%d")
                 log_file = f"{date}_{tone}.md"
                 tn_folder = SAVE_DIR/tone.upper()
