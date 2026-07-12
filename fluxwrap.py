@@ -180,7 +180,7 @@ while True:
 
         # --- SESSION LOOP --- #
         if mode in ["0", ""]:
-
+            mode = 0
             # --- TONE SELECTION --- #
             print("\nThe following tones are available:\n")
             tone_choices = {}
@@ -270,6 +270,7 @@ while True:
 
         #---SINGLE-PROMPT LOOP---#
         elif mode == "1":
+            mode = 1
             tone = "default"
             messages = []
             prompt = input(f"{name.upper()} ({tone}) prompt:\n~ ")
@@ -345,14 +346,14 @@ while True:
                     entries.append(entry)
             session = ''.join(entries)
 
-            if mode in ["0", ""]:
+            if mode == 0:
                 date = datetime.now().strftime("%Y-%m-%d")
                 log_file = f"{date}_{tone}.md"
                 tn_folder = SAVE_DIR/tone.upper()
                 tn_folder.mkdir(exist_ok=True)
                 log = tn_folder/log_file
 
-            elif mode == "1":
+            elif mode == 1:
                 log_file = f"{name}_log.md"
                 log = SAVE_DIR/log_file
 
