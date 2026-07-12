@@ -319,7 +319,7 @@ while True:
         if user.upper() not in ("Y",""):
             continue
         else:
-            if mode in ["0", ""]:
+            if mode == 0:
                 print(
                     f"Session will be saved in today's {tone.upper()} session file."
                 )
