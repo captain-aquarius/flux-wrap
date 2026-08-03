@@ -238,7 +238,7 @@ while True:
 
                 # Payload Preview                                               
                 print(f"Here is your payload preview:\n\n")
-                console.print(Panel(f"{payload}"))
+                console.print(Panel(f"{payload}",style="bright_magenta"))
                 user = input("\nConfirm prompt send? Y/n\n~ ")
                 if user.upper() not in ("Y",""):
                     break
