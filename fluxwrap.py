@@ -32,7 +32,11 @@ if not api_key:
 base_url = "https://openrouter.ai/api/v1"
 client = OpenAI(
         base_url=base_url,
-        api_key=api_key
+        api_key=api_key,
+        default_headers={
+            "HTTP-Referer": "https://github.com/captain-aquarius/flux-wrap",
+            "X-OpenRouter-Title": "FluxWrap",
+        }
 )
 
 # Locate yourself in the file system
