@@ -265,7 +265,7 @@ while True:
                 # Consent to re-loop/continue SESSION LOOP
                 user = input("Continue? Y/n\n~ " )
 
-                if user.upper() not in ("Y",""):
+                if user.upper() == "N":
                     break
 
         #---SINGLE-PROMPT LOOP---#
