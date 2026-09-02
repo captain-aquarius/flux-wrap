@@ -1,6 +1,6 @@
-# Flux
+# FluxWrap
 
-**Flux** is a clean, intuitive Python CLI wrapper for the OpenRouter API that makes conversational AI interactions effortless. It manages context across persistent chat sessions, saves prompt/response exchanges as markdown files, and supports customizable model and tone presets via TOML configuration — a flexible, playful framework for quality LLM interfacing.
+**FluxWrap** is a clean, intuitive Python CLI wrapper for the OpenRouter API that makes conversational AI interactions effortless. It manages context across persistent chat sessions, saves prompt/response exchanges as markdown files, and supports customizable model and tone presets via TOML configuration — a flexible, playful framework for quality LLM interfacing.
 
 ## Two versions of this project
 
