@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Flux - OpenRouter CLI protocol
-(flux branch: input validation + crash salvage)
+FluxWrap - OpenRouter CLI protocol
 """
 
 import sys
@@ -20,7 +19,7 @@ from rich.panel import Panel
 console = Console()
 
 #print Flux logo
-logo = text2art("Flux","ogre")
+logo = text2art("FluxWrap","ogre")
 console.print(Panel(logo,width=57,style="bold bright_yellow"))
 
 # Get API Key from .env
@@ -36,7 +35,7 @@ client = OpenAI(
         api_key=api_key,
         default_headers={
             "HTTP-Referer": "https://github.com/captain-aquarius/flux-wrap",
-            "X-OpenRouter-Title": "Flux",
+            "X-OpenRouter-Title": "FluxWrap",
         }
 )
 
