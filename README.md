@@ -6,7 +6,7 @@
 
 This repo has two branches, and they differ on purpose:
 
-- **`main`** — the original FluxWrap, frozen at tag `v0-jank`. `fluxwrap.py` as first written: fully working, but with no input validation (a stray keystroke at a menu crashes the session). Kept as-is for posterity. To see it: `git checkout main` or `git checkout v0-jank`.
+- **`main`** — the original FluxWrap, frozen at tag `v0-prime`. `fluxwrap.py` as first written: fully working, but with no input validation (a stray keystroke at a menu crashes the session). Kept as-is for posterity. To see it: `git checkout main` or `git checkout v0-prime`.
 - **`flux`** (you are here) — the hardened fork. Same program, renamed to `flux.py`, with crash-proof input handling and a session salvage net. All new work happens on this branch.
 
 To switch back: `git checkout main`. To return: `git checkout flux`.
