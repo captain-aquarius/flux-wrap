@@ -25,9 +25,9 @@ max_tokens = 5000
 "~z-ai/glm-latest" = "Z.aI GLM Latest (1.40/4.40)"
 "~z-ai/glm-flash-latest" = "Z.aI GLM Flash Latest (0.15/0.50)"
 "z-ai/glm-5.3-flash" = "Z.aI GLM 5.3 Flash (0.15/0.50)"
-"qwen/qwen3.7-flash" = "Qwen 3.7 Flash (0.03/0.13)"
-"~deepseek/deepseek-v4-flash-latest" = "Deepseek V4 Flash Latest (0.09/0.18)"
-"nousresearch/hermes-4-70b" = "Hermes 4 70B (0.13/0.40)"
+#"qwen/qwen3.7-flash" = "Qwen 3.7 Flash (0.03/0.13)"
+#"~deepseek/deepseek-v4-flash-latest" = "Deepseek V4 Flash Latest (0.09/0.18)"
+#"nousresearch/hermes-4-70b" = "Hermes 4 70B (0.13/0.40)"
 
 [tones]
 default = ""
